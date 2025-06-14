@@ -8,7 +8,7 @@ from collections import Counter
 # --- CONFIGURATION ---
 TDS_FILE_PATH = "tds_2025_01_raw.txt"
 DISCOURSE_FILE_PATH = "structured_tds_kb.txt"
-API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6IjIzZjEwMDIxNjZAZHMuc3R1ZHkuaWl0bS5hYy5pbiJ9.HGft2wVczRrGyUmafMivsElZsVNMRUZ4iQbF5O4ADIc"
+API_KEY = os.getenv("API_KEY")
 API_URL = "https://aipipe.org/openrouter/v1/chat/completions"
 MODEL = "openai/gpt-4o-mini"
 
