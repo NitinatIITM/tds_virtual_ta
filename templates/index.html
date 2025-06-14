@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TDS Virtual TA</title>
+    <style>
+      body {
+        background-color: white;
+        font-family: "Times New Roman", serif;
+        color: #000;
+        max-width: 700px;
+        margin: 3rem auto;
+        padding: 2rem;
+        border: 3px solid #781f19;
+        background-image: linear-gradient(to bottom, #fff 0%, #fefcf4 100%);
+      }
+
+      h1 {
+        background-color: #781f19;
+        color: white;
+        padding: 0.5rem 1rem;
+        text-align: center;
+        font-size: 2rem;
+        border: 2px solid #d6a64f;
+        margin-bottom: 2rem;
+        letter-spacing: 1px;
+      }
+
+      label {
+        font-weight: bold;
+        color: #781f19;
+      }
+
+      textarea,
+      input[type="file"] {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 1rem;
+        margin-top: 0.25rem;
+        margin-bottom: 1rem;
+        border: 2px solid #d6a64f;
+        background-color: #fffaf0;
+        font-family: "Courier New", monospace;
+      }
+
+      button {
+        background-color: #d6a64f;
+        color: white;
+        border: 2px solid #781f19;
+        padding: 0.5rem 1.5rem;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      button:hover {
+        background-color: #b88b3d;
+      }
+
+      .response {
+        margin-top: 2rem;
+        padding: 1rem;
+        border: 2px solid #781f19;
+        background-color: #fffef9;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      .response h2 {
+        color: #781f19;
+        border-bottom: 1px solid #d6a64f;
+        margin-bottom: 1rem;
+      }
+
+      .links h3 {
+        margin-top: 1.5rem;
+        font-size: 1.1rem;
+        color: #781f19;
+      }
+
+      .links a {
+        color: #d6a64f;
+        text-decoration: underline;
+        display: block;
+        margin: 0.25rem 0;
+        font-family: "Courier New", monospace;
+      }
+
+      .links a:hover {
+        color: #b88b3d;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>TDS Virtual TA</h1>
+    <form id="taForm">
+      <label for="question">Ask your question:</label><br />
+      <textarea id="question" rows="5" required></textarea><br />
+
+      <label for="image">Optional: Upload related image</label><br />
+      <input type="file" id="image" accept="image/*" /><br />
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <div class="response" id="responseBox" style="display: none">
+      <h2>Answer</h2>
+      <p id="answerText"></p>
+      <div class="links">
+        <h3>Related Forum Posts</h3>
+        <div id="linksList"></div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("taForm");
+      const responseBox = document.getElementById("responseBox");
+      const answerText = document.getElementById("answerText");
+      const linksList = document.getElementById("linksList");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const question = document.getElementById("question").value.trim();
+        const fileInput = document.getElementById("image");
+        const file = fileInput.files[0];
+
+        let base64Image = "";
+        if (file) {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          await new Promise((resolve) => {
+            reader.onload = () => {
+              base64Image = reader.result.split(",")[1];
+              resolve();
+            };
+          });
+        }
+
+        answerText.textContent = "Loading...";
+        linksList.innerHTML = "";
+        responseBox.style.display = "block";
+
+        try {
+          const res = await fetch("/api/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              question,
+              image: base64Image || undefined,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.answer) {
+            answerText.textContent = data.answer;
+          } else {
+            answerText.textContent = "No answer found.";
+          }
+
+          if (data.links && data.links.length > 0) {
+            linksList.innerHTML = data.links
+              .map(
+                (link) =>
+                  `<a href="${link.url}" target="_blank">${link.text}</a>`
+              )
+              .join("");
+          }
+        } catch (err) {
+          answerText.textContent = "Error: " + err.message;
+        }
+      });
+    </script>
+  </body>
+</html>
