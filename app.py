@@ -35,8 +35,8 @@ def parse_structured_text(file_path):
                 posts.append(current_post)
                 current_post, content_lines = {"title": "", "url": "", "content": ""}, []
             current_post["title"] = line[2:]
-        elif line.startswith("🧭 URL:"):
-            current_post["url"] = line.replace("🧭 URL:", "").strip()
+        elif line.startswith("🧡 URL:"):
+            current_post["url"] = line.replace("🧡 URL:", "").strip()
         elif line.startswith("📄 Content:"):
             content_lines = []
         elif line.startswith("---"):
