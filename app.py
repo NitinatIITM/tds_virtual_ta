@@ -3,6 +3,7 @@ import re
 import base64
 import requests
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 from collections import Counter
 
 # --- CONFIGURATION ---
@@ -53,6 +54,7 @@ DISCOURSE_DATA = parse_structured_text(DISCOURSE_FILE_PATH)
 
 # --- INIT FLASK APP ---
 app = Flask(__name__)
+CORS(app)
 
 # --- UTILITY FUNCTIONS ---
 def tokenize(text):
