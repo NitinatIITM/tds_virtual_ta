@@ -155,8 +155,10 @@ def virtual_ta():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
+    if request.method == "POST":
+        return jsonify({"message": "POST request received at root route"}), 200
     return render_template("index.html")
 
 # --- START SERVER ---
